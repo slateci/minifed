@@ -14,7 +14,10 @@ if [ ! -f bin/kubefed ]; then
   fi
   wget -O bin/client.tar.gz \
     "https://storage.googleapis.com/kubernetes-release/release/$release/kubernetes-client-$os-amd64.tar.gz"
-  tar -xvzf bin/client.tar.gz -C bin kubernetes/client/bin/kubefed --strip-components=3
+  # switched to bsd compatible tar syntax aka no --strip-components
+  tar -xvzf bin/client.tar.gz -C bin kubernetes/client/bin/kubefed
+  mv bin/kubernetes/client/bin/kubefed bin/kubefed
+  rm -r bin/kubernetes
 fi
 
 echo "[$(date)][INFO] Starting management cluster."
@@ -57,7 +60,7 @@ kubectl label node beta \
   failure-domain.beta.kubernetes.io/region=beta --context=beta
 
 kubectl create configmap ingress-uid --from-literal=uid=alpha1 -n kube-system --context=alpha
-kubectl create configmap ingress-uid --from-literal=ui=beta1 -n kube-system --context=beta
+kubectl create configmap ingress-uid --from-literal=uid=beta1 -n kube-system --context=beta
 
 echo "[$(date)][INFO] Initializing federation control plane as 'fed'."
 bin/kubefed init fed --host-cluster-context=mgmt \

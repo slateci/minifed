@@ -25,9 +25,8 @@ The generated dns records for the associated services are queryable via the core
 ```
 dig selector.default.fed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
 dig spread.default.fed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
-dig weight.default.fed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
+dig weighted.default.fed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
 ```
 
 **Note:** Deleting objects in a federated cluster does not function as deleting a normal object within a cluster.
 https://github.com/kubernetes/federation/issues/75
-
