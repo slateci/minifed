@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: weighted
+  labels:
+    name: weighted
+  annotations:
+    federation.kubernetes.io/service-ingresses: |
+      {
+        "items": [{
+          "cluster": "alpha",
+          "items": [{
+            "ip": "__ALPHA__",
+            "hostname": "__ALPHA__"
+          }]
+        }, {
+          "cluster": "beta",
+          "items": [{
+            "ip": "__BETA__",
+            "hostname": "__BETA__"
+          }]
+        }]
+      }
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: weighted
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: weighted
+  annotations:
+    federation.kubernetes.io/deployment-preferences: |
+          {
+              "rebalance": true,
+              "clusters": {
+                  "alpha": {
+                      "minReplicas": 1,
+                      "maxReplicas": 4,
+                      "weight": 1
+                  },
+                  "beta": {
+                      "minReplicas": 1,
+                      "maxReplicas": 4,
+                      "weight": 2
+                  }
+              }
+          }
+  labels:
+    app: weighted
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: weighted
+  template:
+    metadata:
+      labels:
+        app: weighted
+    spec:
+      containers:
+      - image: nginx
+        name: weighted
+        ports:
+        - containerPort: 80
+          name: http
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: weighted
+  namespace: default
+spec:
+  rules:
+  - host: weighted.default.fed.svc.slateci
+    http:
+      paths:
+      - backend:
+          serviceName: weighted
+          servicePort: 80
+        path: /

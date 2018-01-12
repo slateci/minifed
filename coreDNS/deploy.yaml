@@ -1,0 +1,58 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: coredns
+  name: coredns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coredns
+  template:
+    metadata:
+      labels:
+        app: coredns
+    spec:
+      containers:
+      - args:
+        - -conf
+        - /etc/coredns/Corefile
+        image: coredns/coredns:006
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: coredns
+        ports:
+        - containerPort: 53
+          name: dns
+          protocol: UDP
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /etc/coredns
+          name: config-volume
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: Corefile
+            path: Corefile
+          name: config-coredns
+        name: config-volume

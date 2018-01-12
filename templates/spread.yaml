@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spread
+  labels:
+    name: spread
+  annotations:
+    federation.kubernetes.io/service-ingresses: |
+      {
+        "items": [{
+          "cluster": "alpha",
+          "items": [{
+            "ip": "__ALPHA__",
+            "hostname": "__ALPHA__"
+          }]
+        }, {
+          "cluster": "beta",
+          "items": [{
+            "ip": "__BETA__",
+            "hostname": "__BETA__"
+          }]
+        }]
+      }
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: spread
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: spread
+  labels:
+    app: spread
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: spread
+  template:
+    metadata:
+      labels:
+        app: spread
+    spec:
+      containers:
+      - image: nginx
+        name: spread
+        ports:
+        - containerPort: 80
+          name: http
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: spread
+  namespace: default
+spec:
+  rules:
+  - host: spread.default.fed.svc.slateci
+    http:
+      paths:
+      - backend:
+          serviceName: spread
+          servicePort: 80
+        path: /weighted
