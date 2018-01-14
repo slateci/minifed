@@ -88,7 +88,7 @@ cp -r templates/ examples/
 find examples -type f -name '*.yaml' -exec sed -i -e "s/__ALPHA__/$alpha_ip/g" -e "s/__BETA__/$beta_ip/g" {} \;
 
 echo "[$(date)][INFO] Creating nginx helper configMap"
-kubectl create cm nginx-entrypoint -f scripts/entrypoint.sh
+kubectl create cm nginx-entrypoint --from-file=scripts/entrypoint.sh
 
 echo "[$(date)][INFO] Add a slateci tld"
 echo "tld name: slateci"
