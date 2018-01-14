@@ -66,9 +66,18 @@ spec:
       containers:
       - image: nginx
         name: weighted
+        command: [ "./scripts/entrypoint.sh" ]
         ports:
         - containerPort: 80
           name: http
+        volumeMounts:
+        - name: entrypoint
+          mountPath: /scripts
+      volumes:
+      - name: entrypoint
+        configMap:
+          name: nginx-entrypoint
+          defaultMode: 0755
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

@@ -27,6 +27,7 @@ minikube start -p alpha
 echo "[$(date)][INFO] Starting beta cluster."
 minikube start -p beta
 
+mgmt_ip=$(minikube ip -p mgmt)
 alpha_ip=$(minikube ip -p alpha)
 beta_ip=$(minikube ip -p beta)
 
@@ -85,3 +86,11 @@ kubectl label cluster beta gpu=false
 echo "[$(date)][INFO] Rendering Example templates."
 cp -r templates/ examples/
 find examples -type f -name '*.yaml' -exec sed -i -e "s/__ALPHA__/$alpha_ip/g" -e "s/__BETA__/$beta_ip/g" {} \;
+
+echo "[$(date)][INFO] Creating nginx helper configMap"
+kubectl create cm nginx-entrypoint -f scripts/entrypoint.sh
+
+echo "[$(date)][INFO] Add a slateci tld"
+echo "tld name: slateci"
+echo "nameserver: $mgmt_ip"
+echo "port: 32222"
