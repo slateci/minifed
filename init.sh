@@ -22,10 +22,31 @@ fi
 
 echo "[$(date)][INFO] Starting management cluster."
 minikube start -p mgmt
-echo "[$(date)][INFO] Starting alpha cluster."
-minikube start -p alpha
-echo "[$(date)][INFO] Starting beta cluster."
-minikube start -p beta
+echo "[$(date)][INFO] Creating alpha cluster."
+if VBoxManage list vms | grep -q "\"alpha\"" && ! VBoxManage  list runningvms | grep -q "\"alpha\""; then
+  VBoxManage modifyvm alpha --natdnshostresolver1 on
+  minikube start -p alpha
+else
+  # awful hack because we can't "create" a minikube instance
+  minikube start -p alpha
+  echo "[$(date)][INFO] Modifying DNS configuration for alpha cluster."
+  minikube stop -p alpha
+  VBoxManage modifyvm alpha --natdnshostresolver1 on
+  minikube start -p alpha
+fi
+
+echo "[$(date)][INFO] Creating beta cluster."
+if VBoxManage  list vms | grep -q "\"beta\""  && ! VBoxManage  list runningvms | grep -q "\"beta\""; then
+  VBoxManage modifyvm beta --natdnshostresolver1 on
+  minikube start -p beta
+else
+  # awful hack because we can't "create" a minikube instance
+  minikube start -p beta
+  echo "[$(date)][INFO] Modifying DNS configuration for beta cluster."
+  minikube stop -p beta
+  VBoxManage modifyvm beta --natdnshostresolver1 on
+  minikube start -p beta
+fi
 
 mgmt_ip=$(minikube ip -p mgmt)
 alpha_ip=$(minikube ip -p alpha)
