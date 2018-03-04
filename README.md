@@ -1,9 +1,10 @@
-# Federation PoC
+# minifed
 
-This PoC provisions 3 instances of minikube. A management cluster (`mgmt`) for the federation contorl plane plus CoreDNS, and 2 sites `alpha` and `beta` under the federation context of `minifed`.
+This provisions 3 instances of minikube. A management cluster (`mgmt`) for the federation control plane plus CoreDNS, and 2 sites `alpha` and `beta` under the federation context of `minifed`.
 
 
 ## Usage
+**NOTE:** Only the virtualbox vm-driver is supported
 From a mac of linux host run the `./init.sh` script in the root of the project directory. This will go through the process of provisioning the federated cluster.
 
 #### Provisioning Process
@@ -38,20 +39,20 @@ For additional scheduling preferences, see the [types.go](https://github.com/kub
 The generated dns records for the associated services are queryable via the coredns service running in the management cluster.
 
 ```
-dig selector.default.minifed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
-dig spread.default.minifed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
-dig weighted.default.minifed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
+dig selector.default.minifed.svc.myfed "@$(minikube ip -p mgmt)" -p 32222
+dig spread.default.minifed.svc.myfed "@$(minikube ip -p mgmt)" -p 32222
+dig weighted.default.minifed.svc.myfed "@$(minikube ip -p mgmt)" -p 32222
 ```
 
 The examples can be accessed directly by adding the CoreDNS server to the host's resolver using the information output'ed by the init script.
 ```
-[Sun Jan 14 12:25:53 EST 2018][INFO] Add a slateci tld
-tld name: slateci
+[Sun Jan 14 12:25:53 EST 2018][INFO] Add a myfed tld
+tld name: myfed
 nameserver: 192.168.99.100
 port: 32222
 ```
 
-For OSX this would be creating a file `/etc/resolver/slateci` with the contents:
+For OSX this would be creating a file `/etc/resolver/myfed` with the contents:
 ```
 nameserver 192.168.99.100
 port 32222
@@ -59,7 +60,7 @@ port 32222
 
 For other hosts with dnsmasq, adding a line to the config with the following would be sufficient:
 ```
-server=/slateci/192.168.99.100#32222
+server=/myfed/192.168.99.100#32222
 ```
 
 

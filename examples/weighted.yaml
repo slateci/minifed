@@ -82,7 +82,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: weighted.default.minifed.svc.slateci
+  - host: weighted.default.minifed.svc.myfed
     http:
       paths:
       - backend:

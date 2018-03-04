@@ -65,7 +65,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: spread.default.minifed.svc.slateci
+  - host: spread.default.minifed.svc.myfed
     http:
       paths:
       - backend:

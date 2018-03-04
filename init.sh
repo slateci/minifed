@@ -1,5 +1,4 @@
 #!/bin/bash
-
 release="1.8.6"
 #1st cluster will be considered fcp cluster
 clusters=(mgmt alpha beta)
@@ -109,12 +108,12 @@ init_cluster_lb_services() {
 
 init_fcp() {
   for cluster in "${clusters[@]}"; do
-    kubectl label node "$cluster" \
+    kubectl label node "${cluster}" \
       failure-domain.beta.kubernetes.io/zone="${cluster}1" \
-      failure-domain.beta.kubernetes.io/region="$cluster" --context="$cluster"
+      failure-domain.beta.kubernetes.io/region="${cluster}" --context="${cluster}"
 
     kubectl create configmap ingress-uid --from-literal=uid="${cluster}1" -n \
-      kube-system --context="$cluster"
+      kube-system --context="${cluster}"
   done
   echo "[$(date)][INFO] Provisioning etcd-operator in ${clusters[0]} cluster"
   kubectl apply -f manifests/etcd_operator.yaml --context="${clusters[0]}"
@@ -137,7 +136,7 @@ init_fcp() {
   done
   echo "[$(date)][INFO] Initializing federation control plane as 'minifed'"
   bin/kubefed init minifed --host-cluster-context="${clusters[0]}" \
-    --dns-provider="coredns" --dns-zone-name="slateci." \
+    --dns-provider="coredns" --dns-zone-name="myfed." \
     --api-server-service-type=NodePort \
     --api-server-advertise-address="$(minikube ip -p "${clusters[0]}")" \
     --apiserver-enable-basic-auth=true \
@@ -174,9 +173,11 @@ main() {
   join_clusters
   label_clusters
   kubectl config use-context minifed
-  echo "[$(date)][INFO] Add a slateci tld"
-  echo "tld name: slateci"
+  echo "[$(date)][INFO] Add a myfed tld"
+  echo "tld name: myfed"
   echo "nameserver: $(minikube ip -p "${clusters[0]}")"
   echo "port: 32222"
 }
+
+
 main "$@"

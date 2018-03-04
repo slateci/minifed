@@ -9,7 +9,7 @@ data:
     .:53 {
         cache 30
         errors stderr
-        etcd slateci. {
+        etcd myfed. {
           path /skydns
           endpoint http://etcd.default:2379
         }

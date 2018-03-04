@@ -86,7 +86,7 @@ metadata:
       }]
 spec:
   rules:
-  - host: selector.default.minifed.svc.slateci
+  - host: selector.default.minifed.svc.myfed
     http:
       paths:
       - backend:
