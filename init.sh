@@ -1,5 +1,5 @@
 #!/bin/bash
-release="1.8.6"
+release="v1.8.6"
 #1st cluster will be considered fcp cluster
 clusters=(mgmt alpha beta)
 cluster_labels=("gpu=true" "gpu=false")
@@ -33,7 +33,7 @@ get_kubefed() {
       exit 1
     fi
     wget -O bin/client.tar.gz \
-      "https://storage.googleapis.com/kubernetes-release/release/$release/kubernetes-client-$os-amd64.tar.gz"
+      "https://storage.googleapis.com/kubernetes-release/release/${release}/kubernetes-client-${os}-amd64.tar.gz"
     # switched to bsd compatible tar syntax aka no --strip-components
     tar -xvzf bin/client.tar.gz -C bin kubernetes/client/bin/kubefed
     mv bin/kubernetes/client/bin/kubefed bin/kubefed
