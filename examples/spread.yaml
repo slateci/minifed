@@ -1,26 +1,22 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-entrypoint
+data:
+  entrypoint.sh: |
+    #!/bin/sh
+    echo "$HOSTNAME" > /usr/share/nginx/html/index.html
+
+    exec nginx -g "daemon off;"
+
+---
+
+apiVersion: v1
 kind: Service
 metadata:
   name: spread
   labels:
     name: spread
-  annotations:
-    federation.kubernetes.io/service-ingresses: |
-      {
-        "items": [{
-          "cluster": "alpha",
-          "items": [{
-            "ip": "__ALPHA__",
-            "hostname": "__ALPHA__"
-          }]
-        }, {
-          "cluster": "beta",
-          "items": [{
-            "ip": "__BETA__",
-            "hostname": "__BETA__"
-          }]
-        }]
-      }
 spec:
   type: LoadBalancer
   ports:
@@ -47,7 +43,7 @@ spec:
         app: spread
     spec:
       containers:
-      - image: nginx
+      - image: nginx:stable-alpine
         name: spread
         command: [ "./scripts/entrypoint.sh" ]
         ports:
@@ -69,7 +65,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: spread.default.fed.svc.slateci
+  - host: spread.default.minifed.svc.slateci
     http:
       paths:
       - backend:

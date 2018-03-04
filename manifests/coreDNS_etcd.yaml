@@ -4,4 +4,4 @@ metadata:
   name: "etcd"
 spec:
   size: 1
-  version: "v3.2.13"
+  version: "v3.3.1"

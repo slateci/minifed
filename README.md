@@ -1,6 +1,6 @@
 # Federation PoC
 
-This PoC provisions 3 instances of minikube. A management cluster (`mgmt`) for the federation contorl plane plus CoreDNS, and 2 sites `alpha` and `beta` under the federation context of `fed`.
+This PoC provisions 3 instances of minikube. A management cluster (`mgmt`) for the federation contorl plane plus CoreDNS, and 2 sites `alpha` and `beta` under the federation context of `minifed`.
 
 
 ## Usage
@@ -10,13 +10,14 @@ From a mac of linux host run the `./init.sh` script in the root of the project d
 
 1) The `kubefed` binary is downloaded to the `bin` directory.
 2) The 3 instances of minikube are started.
+3) metalLB is deployed to both the `alpha` and `beta` clusters enabling service type `LoadBalancer`.
 3) The etcd operator is deployed in the `mgmt` cluster and a single node etcd instance is started.
 4) A CoreDNS server is then spun up in the `mgmt` cluster to act as the method of cross-cluster service discovery.
 5 ) Once the CoreDNS server is ready, the `alpha` and `beta` nodes are labeled and mock `ingress-uid` configMap entries are created.
 6) `kubefed` is then used to initalize the `fed` federation control plane in the `mgmt` cluster.
 7) The two clusters `alpha` and `beta` are then  joined to the federation.
 8) The clusters are then labeled with additional labels (`gpu=true` and `gpu=false`)
-9) Example templates are then redered with the cluster specific information, and the federation is ready for use.
+9) Federation is then ready for use
 
 ##### Examples and Monitoring the Federation
 
@@ -37,9 +38,9 @@ For additional scheduling preferences, see the [types.go](https://github.com/kub
 The generated dns records for the associated services are queryable via the coredns service running in the management cluster.
 
 ```
-dig selector.default.fed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
-dig spread.default.fed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
-dig weighted.default.fed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
+dig selector.default.minifed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
+dig spread.default.minifed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
+dig weighted.default.minifed.svc.slateci "@$(minikube ip -p mgmt)" -p 32222
 ```
 
 The examples can be accessed directly by adding the CoreDNS server to the host's resolver using the information output'ed by the init script.

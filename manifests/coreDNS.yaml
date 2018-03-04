@@ -1,3 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-coredns
+  labels:
+    type: config
+data:
+  Corefile: |-
+    .:53 {
+        cache 30
+        errors stderr
+        etcd slateci. {
+          path /skydns
+          endpoint http://etcd.default:2379
+        }
+        health
+        loadbalance round_robin
+        prometheus localhost:9153
+        proxy . /etc/resolv.conf
+    }
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: coredns
+  name: coredns
+spec:
+  ports:
+  - name: dns
+    nodePort: 32222
+    port: 53
+    protocol: UDP
+    targetPort: 53
+  - name: dns-tcp
+    nodePort: 32222
+    port: 53
+    protocol: TCP
+    targetPort: 53
+  selector:
+    app: coredns
+  type: NodePort
+
+---
+
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
